@@ -1,20 +1,21 @@
+import os
 from typing import List
 from openai import OpenAI
 from pydantic import BaseModel, Field
-from .base import BaseAgent
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-
-class RankedArticles(BaseModel):
-    digest_id: str = Field(description="The ID of the digest (article_type=article_id)")
+class RankedArticle(BaseModel):
+    digest_id: str = Field(description="The ID of the digest (article_type:article_id)")
     relevance_score: float = Field(description="Relevance score from 0.0 to 10.0", ge=0.0, le=10.0)
     rank: int = Field(description="Rank position (1 = most relevant)", ge=1)
     reasoning: str = Field(description="Brief explanation of why this article is ranked here")
 
 
 class RankedDigestList(BaseModel):
-    articles: List[RankedArticles] = Field(description="List of ranked articles")
-
+    articles: List[RankedArticle] = Field(description="List of ranked articles")
 
 
 CURATOR_PROMPT = """You are an expert AI news curator specializing in personalized content ranking for AI professionals.
@@ -38,18 +39,18 @@ Scoring Guidelines:
 Rank articles from most relevant (rank 1) to least relevant. Ensure each article has a unique rank."""
 
 
-
 class CuratorAgent:
     def __init__(self, user_profile: dict):
-        super().__init__("gpt-4.1")
+        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        self.model = "gpt-4.1"
         self.user_profile = user_profile
-        self.system_prompt = self._build_system_prompt
+        self.system_prompt = self._build_system_prompt()
 
     def _build_system_prompt(self) -> str:
         interests = "\n".join(f"- {interest}" for interest in self.user_profile["interests"])
-        pereference = self.user_profile["pereference"]
-        pref_text = "\n".join(f"- {k}: {v}" for k, v in pereference.itens())
-
+        preferences = self.user_profile["preferences"]
+        pref_text = "\n".join(f"- {k}: {v}" for k, v in preferences.items())
+        
         return f"""{CURATOR_PROMPT}
 
 User Profile:
@@ -62,22 +63,22 @@ Interests:
 
 Preferences:
 {pref_text}"""
-    
-    def rank_digests(self, digests: List[dict]) -> List[RankedArticles]:
+
+    def rank_digests(self, digests: List[dict]) -> List[RankedArticle]:
         if not digests:
             return []
         
         digest_list = "\n\n".join([
             f"ID: {d['id']}\nTitle: {d['title']}\nSummary: {d['summary']}\nType: {d['article_type']}"
-            for d in digests 
+            for d in digests
         ])
-
+        
         user_prompt = f"""Rank these {len(digests)} AI news digests based on the user profile:
 
 {digest_list}
 
 Provide a relevance score (0.0-10.0) and rank (1-{len(digests)}) for each article, ordered from most to least relevant."""
-        
+
         try:
             response = self.client.responses.parse(
                 model=self.model,
@@ -86,12 +87,10 @@ Provide a relevance score (0.0-10.0) and rank (1-{len(digests)}) for each articl
                 input=user_prompt,
                 text_format=RankedDigestList
             )
-
+            
             ranked_list = response.output_parsed
             return ranked_list.articles if ranked_list else []
         
         except Exception as e:
             print(f"Error ranking digests: {e}")
             return []
-
-
