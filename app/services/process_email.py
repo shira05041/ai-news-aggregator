@@ -60,7 +60,7 @@ def generate_email_digest(hours: int = 24, top_n: int = 10) -> EmailDigestRespon
     )
     
     logger.info("Email digest generated successfully")
-    logger.info(f"\n=== Email Introduction ===")
+    logger.info("\n=== Email Introduction ===")
     logger.info(email_digest.introduction.greeting)
     logger.info(f"\n{email_digest.introduction.introduction}")
     
