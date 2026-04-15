@@ -1,13 +1,13 @@
 import logging
 from dotenv import load_dotenv
 
-load_dotenv()
-
 from app.agents.email_agent import EmailAgent, RankedArticleDetail, EmailDigestResponse
 from app.agents.curator_agent import CuratorAgent
 from app.profiles.user_profile import USER_PROFILE
 from app.database.repository import Repository
 from app.services.email import send_email, digest_to_html
+
+load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
