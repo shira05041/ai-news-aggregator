@@ -6,7 +6,7 @@ from .base import BaseAgent
 
 class EmailIntroduction(BaseModel):
     greeting: str = Field(description="Personalized greeting with user's name and date")
-    introduction: str = Field(description="2-3 sentence overview of what's in the top 10 ranked articles")
+    introduction: str = Field(description="2-3 sentence overview of what's in the top 6 ranked articles")
 
 
 class RankedArticleDetail(BaseModel):
@@ -42,7 +42,7 @@ class EmailDigestResponse(BaseModel):
 
 class EmailDigest(BaseAgent):
     introduction: EmailIntroduction
-    ranked_articles: List[dict] = Field(description="Top 10 ranked articles with their details")
+    ranked_articles: List[dict] = Field(description="Top 6 ranked articles with their details")
 
 
 
@@ -72,7 +72,7 @@ class EmailAgent(BaseAgent):
                 introduction="No articles were ranked today."
             )
         
-        top_articles = ranked_articles[:10]
+        top_articles = ranked_articles[:6]
         article_summaries = "\n".join([
            f"{idx + 1}. {article.title if hasattr(article, 'title') else article.get('title', 'N/A')} (Score: {article.relevance_score if hasattr(article, 'relevance_score') else article.get('relevance_score', 0):.1f}/10)"
             for idx, article in enumerate(top_articles) 
@@ -81,7 +81,7 @@ class EmailAgent(BaseAgent):
         current_date = datetime.now().strftime('%B %d, %Y')
         user_prompt = f"""Create an email introduction for {self.user_profile['name']} for {current_date}.
 
-Top 10 ranked articles:
+Top 6 ranked articles:
 {article_summaries}
 
 Generate a greeting and introduction that previews these articles."""
@@ -108,10 +108,10 @@ Generate a greeting and introduction that previews these articles."""
 
             return EmailIntroduction(
                 greeting=f"Hey {self.user_profile['name']}, here is your daily digest of AI news for {current_date}.",
-                introduction="Here are the top 10 AI news articles ranked by relevance to your interests."
+                introduction="Here are the top 6 AI news articles ranked by relevance to your interests."
             )
 
-    def create_email_digest(self, ranked_articles: List[dict], limit: int = 10) -> EmailDigest:
+    def create_email_digest(self, ranked_articles: List[dict], limit: int = 6) -> EmailDigest:
         top_articles = ranked_articles[:limit]
         introduction = self.generate_introduction(top_articles)
 

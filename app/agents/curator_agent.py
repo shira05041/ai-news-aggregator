@@ -1,5 +1,4 @@
 from typing import List
-from openai import OpenAI
 from pydantic import BaseModel, Field
 from .base import BaseAgent
 
@@ -39,7 +38,7 @@ Rank articles from most relevant (rank 1) to least relevant. Ensure each article
 
 
 
-class CuratorAgent:
+class CuratorAgent(BaseAgent):
     def __init__(self, user_profile: dict):
         super().__init__("gpt-4.1")
         self.user_profile = user_profile

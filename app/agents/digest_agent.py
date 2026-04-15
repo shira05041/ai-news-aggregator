@@ -2,12 +2,6 @@ from typing import Optional
 from pydantic import BaseModel
 from .base import BaseAgent
 
-
-class DigestOutout(BaseModel):
-    title: str
-    summary: str
-
-
 PROMPT = """You are an expert AI news analyst specializing in summarizing technical articles, research papers, and video content about artificial intelligence.
 
 Your role is to create concise, informative digests that help readers quickly understand the key points and significance of AI-related content.
@@ -20,7 +14,12 @@ Guidelines:
 - Avoid marketing fluff - focus on substance"""
 
 
-class DigestAgent:
+class DigestOutout(BaseModel):
+    title: str
+    summary: str
+
+
+class DigestAgent(BaseAgent):
     def __init__(self):
         super().__init__("gpt-4o-mini")
         self.system_prompt = PROMPT
