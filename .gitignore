@@ -57,9 +57,6 @@ docs/_build/
 target/
 
 # DotEnv configuration
-env/
-venv/
-.venv/
 .env
 
 # Database
@@ -89,6 +86,8 @@ venv/
 # Mypy cache
 .mypy_cache/
 
+# Virtual environment
+.venv/
 
 # Alembic migrations
 app/alembic/versions/*
