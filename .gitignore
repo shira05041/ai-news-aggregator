@@ -60,6 +60,7 @@ target/
 env/
 venv/
 .venv/
+.env
 
 # Database
 *.db

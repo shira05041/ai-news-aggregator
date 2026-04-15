@@ -38,16 +38,17 @@ def generate_email_digest(hours: int = 24, top_n: int = 10) -> EmailDigestRespon
     
     logger.info(f"Generating email digest with top {top_n} articles")
     
+    digest_map = {d["id"]: d for d in digests}
     article_details = [
         RankedArticleDetail(
             digest_id=a.digest_id,
             rank=a.rank,
             relevance_score=a.relevance_score,
             reasoning=a.reasoning,
-            title=next((d["title"] for d in digests if d["id"] == a.digest_id), ""),
-            summary=next((d["summary"] for d in digests if d["id"] == a.digest_id), ""),
-            url=next((d["url"] for d in digests if d["id"] == a.digest_id), ""),
-            article_type=next((d["article_type"] for d in digests if d["id"] == a.digest_id), "")
+            title=digest_map.get(a.digest_id, {}).get("title", ""),
+            summary=digest_map.get(a.digest_id, {}).get("summary", ""),
+            url=digest_map.get(a.digest_id, {}).get("url", ""),
+            article_type=digest_map.get(a.digest_id, {}).get("article_type", "")
         )
         for a in ranked_articles
     ]
