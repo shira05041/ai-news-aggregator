@@ -42,8 +42,9 @@ def curate_digests(hours: int = 24) -> dict:
     logger.info(f"Successfully ranked {len(ranked_articles)} articles")
     logger.info("\n=== Top 10 Ranked Articles ===")
     
+    digest_map = {d["id"]: d for d in digests}
     for article in ranked_articles[:10]:
-        digest = next((d for d in digests if d["id"] == article.digest_id), None)
+        digest = digest_map.get(article.digest_id)
         if digest:
             logger.info(f"\nRank {article.rank} | Score: {article.relevance_score:.1f}/10.0")
             logger.info(f"Title: {digest['title']}")
@@ -67,6 +68,6 @@ def curate_digests(hours: int = 24) -> dict:
 
 if __name__ == "__main__":
     result = curate_digests(hours=24)
-    print(f"\n=== Curation Results ===")
+    print("\n=== Curation Results ===")
     print(f"Total digests: {result['total']}")
     print(f"Ranked: {result['ranked']}")
