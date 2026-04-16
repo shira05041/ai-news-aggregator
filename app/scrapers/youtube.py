@@ -65,7 +65,6 @@ class YouTubeScraper:
             return None
         
         except Exception as e:
-            # כאן נדפיס גם את סוג השגיאה
             print(f"[ERROR] Unexpected error for video {video_id}: {type(e).__name__}: {e}")
 
             # אם רוצים לבדוק בעיות חיבור/נטפרי, אפשר להדפיס את הפרוקסי הנוכחי
